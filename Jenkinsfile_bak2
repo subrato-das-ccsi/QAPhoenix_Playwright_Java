@@ -1,0 +1,89 @@
+def creds = ''
+pipeline {
+  agent none
+  tools { maven '3.9.0'}
+  parameters {
+	  choice(name: 'ExecEnvironment', choices: ['qa'], description: 'Pick an environment to run scripts')
+	  choice(name: 'ModuleName', choices: ['EfaxCorporate55PDiscountMMC400Net30EndToEndTestPart1To5.xml'], description: 'Pick scripts by brand & country')
+	  string(name: 'testGroups', defaultValue: '', description: 'Select the testcases by group, For example: regression, smoke')
+	  booleanParam(name: 'uploadResults', defaultValue: false, description: 'Do you want to upload the results to TestRail directly after execution?')
+	  string(name: 'TestRunId', defaultValue: '', description: 'Enter TestRail testrun ID here to upload the final results')
+	  choice(name: 'Browser', choices: ['chrome', 'firefox', 'edge'], description: 'Pick a browser to run scripts in')
+	  string(name: 'ADLoginID', defaultValue: 'j2global\\subrato.das', description: 'Your OneLogin userId, not the e-mail address')
+	  password(name: 'ADLoginPassword', defaultValue: 'Poiuyt987654*', description: 'Your OneLogin password')
+  }
+  stages {
+    stage('prepare') {
+      steps {
+      	script {
+      		/*def response;
+      		try {
+	            response = httpRequest httpMode: 'POST', acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_FORM_DATA',
+				requestBody: "username=${ADLoginID}&password=${ADLoginPassword}&grant_type=password",
+				url: 'https://secretserver.j2noc.com/SecretServer/oauth2/token'
+			} catch (Exception e) {
+				error("HTTP request failed: ${e.getMessage()}")
+				error("${response.content}")
+			}
+			def data = readJSON text: response.content*/
+			def access_token = 'AgIfC1mw2PrA1v0kr1YJ6XiiPdrtjPHWD9QjHtLBJ3p2k3B3Dd6rMOdkYvejnzInroBt_Dks2eMFEHvtZQHp_LIDiLN2a6HedKw5zH-j-TuUo1N6XJdec3sQo7ulpMkrgd7cA2WmeXbMclyVhTCqO3DqSnPUx2dnxRUoOY_XHkeGPqn9lxIqZEOT_4uGCOtYR6hrQt14CrSLkWONfkFDyDIJzBnLjPxcE8e_3WRY60rxNKGGqOHhMYrqd5IPeXyWuoFt8tS6KWThQqavia__SQh85QwuSZN-lM6pGAeopwKv3VeXUSYtA3DX-N7asNfXKD3vZaH7uNaCqXJNSHEHG5YUlcovlmvfItbzpO_Kx9sFHsbKGRIMDlM-oBZRtOFyz4X7DuHQrRuxsQf7eeCFi1KL_29K77dShH8jowDUbhyMgiQR9LTSkByZILAwE5l1khB0CaL_sCIXXA0mMcWqiTRJ4iZnGgIaDjuhX28XmJX9OTW-oFGGzY69yBEAK_25Wj8qxqb8STmYM0Wiu_AttH-OihCXzuvdNLVL7Z8sTr9yXEInStNIUV-vcEFMAMj5bHLrLN8gSUl2mRdn1CDzW9rnwzbKCiDqIKYNYSXubwOK5IOK-8sl33SOLWDKNAkbmhjPrzCu8AfpcUBtUM8eUz7dDCh1DlpxLZgRfWz01bD-ofZKB-ZJE3PCChtaAJiBlMw'
+			//println("$access_token")
+
+			def secretIds = ['20994', '20994']
+
+			secretIds.each{ item ->
+				try {
+				    /*def credname = httpRequest httpMode: 'GET', acceptType: 'APPLICATION_JSON', customHeaders: [[maskValue: false, name: 'Authorization', value: "Bearer $access_token"]],
+				    url: "https://secretserver.j2noc.com/SecretServer/api/v1/secrets/lookup/$item"
+					def cred = readJSON text: credname.content
+					def name = cred.value*/
+
+					def username = httpRequest httpMode: 'GET', acceptType: 'APPLICATION_JSON', customHeaders: [[maskValue: false, name: 'Authorization', value: "Bearer $access_token"]],
+				    url: "https://secretserver.j2noc.com/SecretServer/api/v1/secrets/$item/fields/username"
+
+					def password = httpRequest httpMode: 'GET', acceptType: 'APPLICATION_JSON', customHeaders: [[maskValue: false, name: 'Authorization', value: "Bearer $access_token"]],
+				    url: "https://secretserver.j2noc.com/SecretServer/api/v1/secrets/$item/fields/password"
+
+					creds = creds   + "\n" + name + " = " + username.content.substring(1, username.content.length() - 1) + " :: " + password.content.substring(1, password.content.length() - 1)
+				} catch (Exception e) {
+					error("HTTP request failed: ${e.getMessage()}")
+					error("${response.content}")
+				}
+			}
+        }
+      }
+	}
+    stage('test') {
+	  agent { label 'WebAgent && !AWSUSW* && !qa_instance_*' }
+      steps {
+      	dir("src/test/resources/environments/${ExecEnvironment}"){ unstash('offercodes.csv') }
+		script {
+			//println("$creds")
+			writeFile file: "credentials.${ExecEnvironment}", text: "$creds"
+
+			//git branch: '${ExecEnvironment}', credentialsId: 'Jenkins_Github_Credentials', url: 'https://github.com/J2Global-Fax/QaAutomation-ReactFunnel.git'
+	        if (isUnix()) {
+				sh 'echo $PATH'
+				sh 'mvn -q clean compile test -P ${ExecEnvironment} -D uploadResults=${uploadResults} -D skipTests=false -D headless=true -D webbrowser=${Browser} -D testgroups=${testGroups} -D testRunId=${TestRunId} -D suiteXmlFiles=${ModuleName} -D oracle.jdbc.timezoneAsRegion=false'
+			}
+			else {
+				bat 'echo %PATH%'
+				bat 'mvn -q clean compile test -P %ExecEnvironment% -D uploadResults=%uploadResults% -D skipTests=false -D headless=true -D webbrowser=%Browser% -D testgroups=%testGroups% -D testRunId=%TestRunId% -D suiteXmlFiles=%ModuleName% -D oracle.jdbc.timezoneAsRegion=false'
+			}
+		}
+  	}
+	post {
+	    always {
+	        publishHTML target: [
+	        	allowMissing: false,
+	        	alwaysLinkToLastBuild: true,
+	        	keepAll: true,
+	        	reportDir: 'test-output/report',
+	        	reportFiles: 'custom-emailable-report.html',
+	        	reportName: 'HTML Report'
+	        ]
+	    }
+    }
+  }
+ }
+}

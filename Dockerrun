@@ -1,0 +1,5 @@
+docker rm -f container.secure.efax.com
+docker rmi -f image.secure.efax.com:local
+docker build . -t image.secure.efax.com:local
+docker run -i -t --name container.secure.efax.com image.secure.efax.com:local sh -c "mvn clean compile test -P qa -D uploadResults=false -D skipTests=false -D testRunId=R00000 -D headless=true -D suiteXmlFiles=secure.efax.us.xml -D oracle.jdbc.timezoneAsRegion=false"
+docker cp container.secure.efax.com:/tmp/pw-java/target/ ./target/

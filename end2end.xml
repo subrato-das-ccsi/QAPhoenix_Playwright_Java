@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="SalesForce CCSI" preserve-order="true" parallel="methods" thread-count="1">
+  <test name="End to End Workflows" >
+    <classes>
+      <class name="com.consensus.qaauto.excluded.classFiles.LogoutTest"/>
+    </classes>
+  </test>
+</suite>

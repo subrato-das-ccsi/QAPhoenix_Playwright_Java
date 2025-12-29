@@ -1,0 +1,10 @@
+FROM openjdk:11-jdk
+
+#set working directory
+WORKDIR /Java_Base_Framework
+
+# copying src of framework
+COPY target/ecfax-qaauto-baseframework-1.0.0-fat-tests.jar ./target/
+
+# running the actual command
+ CMD ["java","-jar","target/ecfax-qaauto-baseframework-1.0.0-fat-tests.jar"]
