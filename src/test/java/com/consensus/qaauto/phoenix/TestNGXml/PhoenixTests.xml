@@ -1,0 +1,21 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="E2E_Clinical_Sales_Suite">
+
+  <test name="Clinical Sales All flows (End to End)" verbose="2">
+    <classes>
+      <class name="com.consensus.qaauto.phoenix.tests.ClinicalSalesAllScenarios">
+        <methods>
+          <include name="ClinicalSalesE2ELv1Part1"/>
+        </methods>
+      </class>
+      <class name="com.consensus.qaauto.phoenix.tests.LeadConversion">
+        <methods>
+          <include name="leadConversionTestNew"/>
+          <include name="leadContentSyndication"/>
+          <include name="leadChannel"/>
+          <include name="leadSourceType"/>
+        </methods>
+      </class>
+    </classes>
+  </test>
+</suite>

@@ -2,7 +2,6 @@ package com.consensus.qaauto.utility;
 
 import testResources.Constant;
 
-import javax.swing.text.Utilities;
 import java.io.*;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -12,7 +11,7 @@ import java.util.Scanner;
 
 import static com.consensus.qaauto.common.playwright.Utilities.faker;
 
-public class SalesforceGeneralUtility {
+public class GeneralUtility {
      public static String getRecordFileLocation(String className, String timeStamp) {
            return Paths.get("test-output/report/Files/") + "\\" + className + "-" + timeStamp + ".log";
        }
