@@ -30,7 +30,7 @@ public class LoginPage extends NavigationBarPage {
 	//switchuser - defines the user need to switched from Admin to other type
 	//UserType - what type of user i.e Sales,PSA etc
 	//browserType - default will be chrome
-	public Page loginToSalesForce(boolean switchuser,String userType,String browserType){
+	public Page loginToApplication(boolean switchuser, String userType, String browserType){
 		setUserName(userType);
 		if (page.url().contains("blank")) {
 			page.navigate(Config.getProperties().getProperty("CCSISalesForceURL")).finished();

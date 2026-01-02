@@ -186,7 +186,7 @@ private final Locator opportunityEstEndDate = page.locator("//flexipage-field[@d
 private final Locator paymentTermApproval = page.locator("//records-record-layout-item[@field-label='Payment Term Approval']//lightning-formatted-text");
 private final Locator neutralButton = page.locator("//button[@class='slds-button slds-button_neutral modal-button-left actionButton uiButton--default uiButton--brand uiButton']");
 private final Locator alertWarningButton = page.locator("//div[@data-key='warning']//button").first();
-    OpportunitiesPage opportunities = null;
+
 private final Locator labelCCSIBusinessLegalEntity = page.getByLabel("CCSI Business Legal Entity");
     String timeStamp = "";
 private final Locator saveButtonOpportunity = page.locator(saveEditButton);
@@ -271,7 +271,7 @@ private final Locator leadSourceOption(String leadSource){
     /*public String approveQuoteAsUser(String user) {
         LoginPage loginPage = new LoginPage(page);
         try {
-            loginPage.loginToSalesForce(true, user, "");
+            loginPage.loginToApplication(true, user, "");
             quoteId = readFromFile("QuoteId.txt");
             readAllNotificationsOpenQuote();
             page.waitForTimeout(3000);
@@ -2867,48 +2867,8 @@ private final Locator leadSourceOption(String leadSource){
         String lastname = faker.name().lastName();
         return firstname + "." + lastname + "@yopmail.com";
     }*/
-    public String validateLeadCreation(String leadsource, String leadcurrency, String leadtype, String industry, String targetedproduct) {
-        leadCreation(leadsource, leadcurrency, leadtype, industry, targetedproduct);
-        waitForLoader();
-        page.waitForLoadState();
-        createAndconvertLead();
-        String opportinutyName = Constant.companyName + ":" + targetedproduct;
-        Constant.Opportunity=opportinutyName;
-        logger.info(opportinutyName);
-        OpportunitiesPage opportunitiesPage = switchToOpportunityDetailsScreen(opportinutyName);
-        logger.info("Lead to Opportunity converted Successfully");
-        return opportinutyName;
-    }
-    public AccountsPage createAndconvertLead() {
-        try {
-            // 1. Click the main convert button
-            convertFromMainPage.first().click();
-            waitForLoader(); // Assuming this waits for a general page loader to disappear
-            convertFromPopup.first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
-            page.waitForLoadState(LoadState.LOAD);
-            logger.info("Convert from popup is now enabled/clickable.");
 
-            // 2. Click the convert button in the popup
-            convertFromPopup.first().click();
-            waitForLoader(); // Wait for any loader that appears after clicking the popup convert button
 
-            // 3. Close the success popup
-            // Wait for the close button on the success popup to be visible
-            closeLeadConversionSuccessPopup.first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
-            closeLeadConversionSuccessPopup.first().click();
-            logger.info("Lead Conversion successful");
-
-            return new AccountsPage(page);
-        } catch (Exception e) {
-            logger.error("Error while executing " + Thread.currentThread().getStackTrace()[1].getMethodName() +
-                    " method in " + Thread.currentThread().getStackTrace()[1].getClassName() +
-                    " class. Exception: " + e.getMessage(), e); // Log the full exception for better debugging
-            // You might want to handle this error more gracefully, e.g., throw a custom exception
-            // or return null if conversion truly failed.
-            // Returning a new AccountsPage here might mask a failure.
-            return new AccountsPage(page); // Consider if this is the correct behavior on failure
-        }
-    }
 
 
 
@@ -3030,7 +2990,7 @@ private final Locator leadSourceOption(String leadSource){
     }
     private void performCommonEdits(String user, String accountName, String contactName, String opportunity) {
         LoginPage loginPage = new LoginPage(page);
-        loginPage.loginToSalesForce(true, user, "");
+        loginPage.loginToApplication(true, user, "");
         waitForLoader();
         openAccount(accountName);
         editOpenAccount();
@@ -3105,80 +3065,15 @@ private final Locator leadSourceOption(String leadSource){
     }
     public HomePage preparePageWithLoggedInUser() {
         LoginPage loginPage = new LoginPage(page);
-        loginPage.loginToSalesForce(true, "sales", "");
+        loginPage.loginToApplication(true, "sales", "");
         return new HomePage(page);
     }
 
     // This method is a combined version from multiple files, handling both 'sales' and 'Jamie' users.
     public HomePage preparePageWithLoggedInUser(String user) {
         LoginPage loginPage = new LoginPage(page);
-        loginPage.loginToSalesForce(true, user, "");
+        loginPage.loginToApplication(true, user, "");
         return new HomePage(page);
-    }
-    public String createQuoteClinicalSales(int software_discount, int consulting_discount, int maintainence_discount, int outsourcing_discount) throws IOException {
-        String urlCurrent = "";
-        try {
-            Constant.Opportunity = validateLeadCreation("Email", "USD", "Prospect", "Other", "Clarity");
-            performCommonEdits("Michael", Constant.companyName, Constant.firstName + " " + Constant.lastName,Constant.Opportunity);
-            globalSearch(Constant.Opportunity);
-            openLink(Constant.Opportunity);
-            waitForLoader();
-            String closeDateElement = dateElement.first().textContent();
-            logger.info("Close Date " + closeDateElement);
-            AnalysisLogger.write("Close Date " + closeDateElement + "\n");
-            projectStartEndDates(closeDateElement);
-            QuotesPage quotes = new QuotesPage(page);
-            String quote = quotes.createQuoteFromAccount(true, Constant.companyName, Constant.contact, Constant.Opportunity);
-            AnalysisLogger.write("QuoteID :" + quote + "\n");
-            writeToFile("QuoteId.txt", quote);
-            netAmount = quotes.addQuoteLineItemsDiscountEndToEndTest(quote, software_discount, consulting_discount, maintainence_discount, outsourcing_discount);
-            waitForLoader();
-            editPaymentTerms.click();
-            selectNet45PaymentTerms();
-            submitForApprovalSubmit.click();
-            waitForLoader();
-            submitForApprovalBox.fill("Test record " + Constant.quoteId + " Submitting for approval");
-            waitForLoader();
-            closeAlertWarning();
-            neutralButton.click();
-            waitForLoader();
-            String approvalStatus = statusLocatorQuote.first().textContent();
-            logger.info(approvalStatus);
-            AnalysisLogger.write(approvalStatus + "\n");
-            closeAlertWarning();
-            /*LoginPage loginPage = getLoginAndApprove("Josh");
-            loginPage.loginToSalesForce(true, "sales", "");
-            waitForLoader();
-            opportunities = new OpportunitiesPage(page);
-            opportunities.switchToOpportunityDetailsScreen(Constant.Opportunity);
-            quotesLink.first().click();
-            waitForLoader();
-            quoteNumberLocator.click();
-            String quoteStatus = getQuoteStatus();
-            getPaymentTermApprovalStatus();
-            AnalysisLogger.write(quoteStatus);*/
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            logger.info("Exception occured while creating quote from Applauncher");
-        }
-        return opportunity;
-    }
-    public String getQuoteStatus() throws IOException {
-        String quoteStatus = statusLocatorQuote.textContent();
-        if (quoteStatus.equalsIgnoreCase("In Review")) {
-            logger.info(quoteStatus + "  Level 2 approval required");
-        } else {
-            softly.assertThat(quoteStatus).isEqualToIgnoringCase("Accepted");
-            logger.info(quoteStatus);
-            AnalysisLogger.write(quoteStatus);
-        }
-        return quoteStatus;
-    }
-    public void getPaymentTermApprovalStatus() {
-        String quotePaymentTermApproval = paymentTermApproval.textContent();
-        softly.assertThat(quotePaymentTermApproval).isEqualToIgnoringCase("Approved");
-        logger.info(quotePaymentTermApproval);
     }
     public void readAllNotificationsOpenQuote() {
         notificationIcon.click();
@@ -3195,7 +3090,7 @@ private final Locator leadSourceOption(String leadSource){
     }
     public LoginPage getLoginAndApprove(String user) {
         LoginPage loginPage = new LoginPage(page);
-        loginPage.loginToSalesForce(true, user, "");
+        loginPage.loginToApplication(true, user, "");
         quoteId = GeneralUtility.readFromFile("QuoteId.txt");
         readAllNotificationsOpenQuote();
         waitForLoader();
@@ -4096,7 +3991,7 @@ private final Locator leadSourceOption(String leadSource){
         try {
             Locator quoteIdOnHomeScreen = page.locator("//h3[@title='"+ Constant.quoteId+"']/a").first();
             LoginPage loginPage=new LoginPage(page);
-            loginPage.loginToSalesForce(true,user,"");
+            loginPage.loginToApplication(true,user,"");
             quoteIdOnHomeScreen.click();
             page.waitForTimeout(3000);
             approveLinkLocator.first().click();
@@ -4115,7 +4010,7 @@ private final Locator leadSourceOption(String leadSource){
             Constant.quoteId=readFromFile("QuoteId.txt");
             LoginPage loginPage=new LoginPage(page);
             approveAsUserWithComments("Brett","Approving the Quote as Manager");
-            loginPage.loginToSalesForce(true,"sales","");
+            loginPage.loginToApplication(true,"sales","");
             opportunity=readFromFile("EndToEndTest.txt");
             opportunities = new OpportunitiesPage(page);
             opportunities.switchToOpportunityDetailsScreen(opportunity);
@@ -4154,7 +4049,7 @@ private final Locator leadSourceOption(String leadSource){
             Constant.quoteId=readFromFile("QuoteId.txt");
             LoginPage loginPage=new LoginPage(page);
             approveAsUserWithComments("Franklin","Approving the Quote as Sales VP");
-            loginPage.loginToSalesForce(true,"sales","");
+            loginPage.loginToApplication(true,"sales","");
             opportunity=readFromFile("EndToEndTest.txt");
             opportunities = new OpportunitiesPage(page);
             opportunities.switchToOpportunityDetailsScreen(opportunity);
@@ -4193,7 +4088,7 @@ private final Locator leadSourceOption(String leadSource){
             Constant.quoteId=readFromFile("QuoteId.txt");
             LoginPage loginPage=new LoginPage(page);
             approveAsUserWithComments("Michael","Approving the Quote as  Commercial Management (CM) / Client Services");
-            loginPage.loginToSalesForce(true,"sales","");
+            loginPage.loginToApplication(true,"sales","");
             opportunity=readFromFile("EndToEndTest.txt");
             opportunities = new OpportunitiesPage(page);
             opportunities.switchToOpportunityDetailsScreen(opportunity);
@@ -4233,7 +4128,7 @@ private final Locator leadSourceOption(String leadSource){
             Constant.quoteId=readFromFile("QuoteId.txt");
             LoginPage loginPage=new LoginPage(page);
             approveAsUserWithComments("Josh","Approving the Quote as  Commercial Management (CM) / Client Services");
-            loginPage.loginToSalesForce(true,"sales","");
+            loginPage.loginToApplication(true,"sales","");
             opportunity=readFromFile("EndToEndTest.txt");
             opportunities = new OpportunitiesPage(page);
             opportunities.switchToOpportunityDetailsScreen(opportunity);
@@ -4272,7 +4167,7 @@ private final Locator leadSourceOption(String leadSource){
             Constant.quoteId=readFromFile("QuoteId.txt");
             LoginPage loginPage=new LoginPage(page);
             approveAsUserWithComments("Jon","Approving the Quote as  Commercial Management (CM) / Client Services");
-            loginPage.loginToSalesForce(true,"sales","");
+            loginPage.loginToApplication(true,"sales","");
             opportunity=readFromFile("EndToEndTest.txt");
             opportunities = new OpportunitiesPage(page);
             opportunities.switchToOpportunityDetailsScreen(opportunity);
@@ -5372,7 +5267,7 @@ private final Locator leadSourceOption(String leadSource){
             AnalysisLogger.write(estProjectEndDate + "\n");
 
             LoginPage loginPage = new LoginPage(page); // Re-initialize if necessary, or pass from constructor
-            loginPage.loginToSalesForce(true, "Michael", "");
+            loginPage.loginToApplication(true, "Michael", "");
 
             // Replaced page.waitForTimeout(5000); - Wait for an element on the dashboard/home page after login
             // Assuming this navigates to a new page, Playwright implicitly waits for navigation.
@@ -5534,612 +5429,10 @@ private final Locator leadSourceOption(String leadSource){
         }
         return Constant.quoteId;
     }*/
-    public String openContract(String opportunity) {
-        opportunities = new OpportunitiesPage(page);
-        opportunities.switchToOpportunityDetailsScreen(opportunity);
-        logger.info("Opportunity screen opened");
-        contactsLink.first().click();
-        page.waitForTimeout(3000);
-        //contractNumber.click();
-        for(int i=0;i<30;i++)
-        {
-            page.waitForTimeout(5000);
-            if(contractNumberPage.isVisible())
-            {
-                String contractNumber = contractNumberPage.textContent();
-                logger.info("Contract Number :" + contractNumber+" is GENERATED AS EXPECTED");
-
-                softly.assertThat(contractNumber).isNotBlank();
-                return contractNumber;
-            }
-            page.reload();
-        }
-        String contractNumber = contractNumberPage.textContent();
-        softly.assertThat(contractNumber).isNotBlank();
-        return "Contract Number is not Visisble";
-    }
     public void openLink(String link) {
         page.locator("//a[@title='" + link + "']").first().click();
     }
-    /*public String createOrderUnderQuote5(String opportunity, String timeStamp2,String recordFileLocation){
-        //This is under client sales discount Lv2 end to end test 2
-        String urlCurrent="";
-        try{
-            FileWriter fw =new FileWriter(recordFileLocation);
-            urlCurrent = page.url();
-            logger.info(urlCurrent);
-            //Open the opportunity
-            opportunities = new OpportunitiesPage(page);
-            opportunities.switchToOpportunityDetailsScreen(Constant.Opportunity);
-            logger.info("Opportunity screen opened");
-            fw.write("Opportunity screen opened"+"\n");
-            //Locator opportunitySearchField = page.locator("//input[@name='Opportunity-search-input']");
-            
-            if(amountOpportunity.isVisible())
-            {
-                logger.info(amountOpportunity.textContent());
-                fw.write(amountOpportunity.textContent()+"\n");
-                if(amountOpportunity.textContent().equalsIgnoreCase(netAmount))
-                {
-                    logger.info("Net Amount and Opportunity amount matched");
-                    fw.write("Net Amount and Opportunity amount matched"+"\n");
-                }
-            }
-            
-            if(subscriptionTermOpportunity.isVisible())
-            {
-                logger.info(subscriptionTermOpportunity.textContent());
-                fw.write(subscriptionTermOpportunity.textContent()+"\n");
-            }
-            
-            if(mrrOpportunity.isVisible())
-            {
-                logger.info(mrrOpportunity.textContent());
-                fw.write(mrrOpportunity.textContent()+"\n");
-            }
-            
-            if(acvOpportunity.isVisible())
-            {
-                logger.info(acvOpportunity.textContent());
-                fw.write(acvOpportunity.textContent()+"\n");
-            }
-            Locator dialog=dialogAlohaFrameLocator;
-            String futureDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern("M/d/yyyy"));
-            page.waitForTimeout(5000);
-            opportunities.switchToOpportunityDetailsScreen(Constant.Opportunity);
-            logger.info("Opportunity screen opened for Save  ");
-            fw.write("Opportunity screen opened for Save  "+"\n");
-            page.waitForTimeout(3000);
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit").setExact(true)).first().click();
-            page.waitForTimeout(5000);
-            dialogAlohaFrameLocator.isVisible();
-            dialog.locator(documentUploadCompletedLocator).click();
-            dialog.locator(documentUploadLocatorYes).click();
-            dialog.locator(contractExecutionDateLocator).fill(futureDate);
-            dialog.locator(stageLocator).first().click();
-            dialog.selectFromDropDown(closedWonPendingStage).first().click();
-            String opportunityMRR = dialog.locator(opportunityMRRLocator).textContent();
-            logger.info("Opportunity MRR with USD :"+opportunityMRR);
-            opportunityMRR = opportunityMRR.replaceAll("USD ","");
-            logger.info("Opportunity MRR  :"+opportunityMRR);
-            dialog.locator(opportunityEstimatedMRRLocator).fill(opportunityMRR);
 
-            dialog.locator(saveEditButton).first().click();
-            logger.info("Clicked Save on Opportunity with Successful save with Closed/Won Pending");
-            fw.write("Clicked Save on Opportunity with Successful save with Closed/Won Pending"+"\n");
-            page.waitForTimeout(3000);
-            String stage = opportunityStage.first().textContent();
-            logger.info(stage);
-            fw.write(stage+"\n");
-            String closeDate = opportunityCloseDate.first().textContent();
-            logger.info(closeDate);
-            fw.write(closeDate+"\n");
-
-            String estProjectStartDate = opportunityEstStartDate.first().textContent();
-            logger.info(estProjectStartDate);
-            fw.write(estProjectStartDate+"\n");
-            String estProjectEndDate = opportunityEstEndDate.first().textContent();
-            logger.info(estProjectEndDate);
-            fw.write(estProjectEndDate+"\n");
-            LoginPage loginPage=new LoginPage(page);
-            loginPage.loginToSalesForce(true,"Michael","");
-            page.waitForTimeout(5000);
-            //Check notifications
-            readAllNotificationsAndClose();
-            page.locator("//h3[@title='"+Constant.Opportunity+"']/a").first().click();
-            page.waitForTimeout(3000);
-            approveButtonLocator.first().click();
-            page.waitForTimeout(3000);
-            approvalTextBox.first().fill("Approving the Opportunity for testing");
-            neutralButton.first().click();
-            page.waitForTimeout(3000);
-            String checkApproval = approveButtonOne.nth(0).textContent();
-            logger.info(checkApproval);
-            fw.write(checkApproval+"\n");
-            String checkApproval2 = approveButtonOne.nth(1).textContent();
-            logger.info(checkApproval2);
-            fw.write(checkApproval2+"\n");
-            //Login as Sales user again
-            page.waitForTimeout(5000);
-            opportunities.switchToOpportunityDetailsScreen(Constant.Opportunity);
-            quotesLink.first().click();
-            page.waitForTimeout(3000);
-            Constant.quoteId=quoteDash.first().textContent();
-            quoteNumberLocator.click();
-            logger.info(Constant.quoteId + " quote page opened");
-            fw.write(Constant.quoteId + " quote page opened"+"\n");
-            page.waitForTimeout(3000);
-            String quoteStatus = statusLocator.textContent();
-            logger.info(quoteStatus);
-            fw.write(quoteStatus+"\n");
-            boolean orderedCheckbox = orderedCheckBoxLocator.isChecked();
-            logger.info("Ordered Checkbox is checked :"+orderedCheckbox);
-            fw.write("Ordered Checkbox is checked :"+orderedCheckbox+"\n");
-
-            ordersLink.first().click();
-            page.waitForTimeout(3000);
-
-            orderNumberLocator.click();
-            page.waitForTimeout(3000);
-            String orderName = orderNameLocator.textContent();
-            logger.info("Order Name :" + orderName);
-            fw.write("Order Name :" + orderName+"\n");
-            String orderType = orderTypeLocator.textContent();
-            logger.info("Order Type :" + orderType);
-            fw.write("Order Type :" + orderType+"\n");
-            String orderAmount = orderAmountLocator.textContent();
-            logger.info("Order Amount :"+ orderAmount);
-            fw.write("Order Amount :"+ orderAmount+"\n");
-            String quoteOrderStatus = submittedForFinanceReview.first().textContent();
-            logger.info("Order Status :"+ quoteOrderStatus);
-            fw.write("Order Status :"+ quoteOrderStatus+"\n");
-            String orderStartDate = orderStartDateLocator.textContent();
-            logger.info("Order Start Date :"+ orderStartDate);
-            fw.write("Order Start Date :"+ orderStartDate+"\n");
-            String orderBillingFrequency = billingFrequency.first().textContent();
-            logger.info("Billing Frequency :"+ orderBillingFrequency);
-            fw.write("Billing Frequency :"+ orderBillingFrequency+"\n");
-            page.locator("//article[@aria-label='Order Products']//a").first().click();
-            page.waitForTimeout(3000);
-            String lastElement ="";
-
-            int productCount = productCodes.count();
-            String[] products={"EFAX_PROF_SVC_ONBOARD_TRN","EFAX_LOCAL_DID","EFAX_FAX_PAGES","EFAX_CORP_LOCAL_PKG","EFAX_CORP_CONTRACT","EFAX_ACTIVATION"};
-            String[] products2= new String[6];
-            int lastElementCount=0;
-            for(int i=0;i<productCount;i++){
-                if(allUpperCase(productCodes.nth(i).textContent()))
-                {
-                    logger.info(productCodes.nth(i).textContent());
-                    fw.write(i+" "+productCodes.nth(i).textContent()+"\n");
-                    products2[i]=productCodes.nth(i).textContent();
-                    if(i==productCount-1){
-                        lastElement = productCodes.nth(i).textContent();
-                        logger.info("lastElement =" + lastElement);
-                        lastElementCount=i;
-                    }
-                }
-            }
-            productCodeButtonLocator.click();
-            page.waitForTimeout(3000);
-
-            for(int i=0;i<productCodes2.count();i++){
-                if(allUpperCase(productCodes2.nth(i).textContent()))
-                {
-                    if(productCodes2.nth(i).textContent().equalsIgnoreCase(lastElement))
-                    {
-                        break;
-                    }
-                    int no = 16+i;
-                    logger.info(productCodes2.nth(i).textContent());
-                    fw.write(no+" "+productCodes2.nth(i).textContent()+"\n");
-                    products2[lastElementCount+i+1]=productCodes2.nth(i).textContent();
-                }
-            }
-            for(int i=0;i<products2.length;i++)
-            {
-                logger.info("products2 "+i+" "+products2[i]);
-            }
-            Arrays.sort(products);
-            Arrays.sort(products2);
-            for(int i=0;i<products.length;i++)
-            {
-                if(products[i].equalsIgnoreCase(products2[i])){
-                    logger.info("Match "+i+" "+products[i]);
-                    fw.write(products[i]+" in Quote :"+Constant.quoteId+"matches with "+products2[i]+" in Order :"+orderName+"\n");
-                }
-                else{
-                    logger.info(products[i]+" did not match");
-                }
-                if(i==products.length-1){
-                    logger.info(" PRODUCT COUNT MATCHES AS EXPECTED");
-                }
-            }
-
-            fw.close();
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-            logger.info("Exception occured while creating order from Quote");
-        }
-        return Constant.quoteId;
-    }
-    public String createOrderUnderQuote(String opportunity, String timeStamp2, String recordFileLocation){
-        String urlCurrent="";
-        try{
-            FileWriter fw =new FileWriter(recordFileLocation);
-            urlCurrent = page.url();
-            logger.info(urlCurrent);
-            //Open the opportunity
-            opportunities = new OpportunitiesPage(page);
-            opportunities.switchToOpportunityDetailsScreen(opportunity);
-            logger.info("Opportunity screen opened");
-            fw.write("Opportunity screen opened"+"\n");
-            //Locator opportunitySearchField = page.locator("//input[@name='Opportunity-search-input']");
-            
-            if(amountOpportunity.isVisible())
-            {
-                logger.info(amountOpportunity.textContent());
-                fw.write(amountOpportunity.textContent()+"\n");
-                if(amountOpportunity.textContent().equalsIgnoreCase(netAmount))
-                {
-                    logger.info("Net Amount and Opportunity amount matched");
-                    fw.write("Net Amount and Opportunity amount matched"+"\n");
-                }
-            }
-            
-            if(subscriptionTermOpportunity.isVisible())
-            {
-                logger.info(subscriptionTermOpportunity.textContent());
-                fw.write(subscriptionTermOpportunity.textContent()+"\n");
-            }
-            
-            if(mrrOpportunity.isVisible())
-            {
-                logger.info(mrrOpportunity.textContent());
-                fw.write(mrrOpportunity.textContent()+"\n");
-            }
-            
-            if(acvOpportunity.isVisible())
-            {
-                logger.info(acvOpportunity.textContent());
-                fw.write(acvOpportunity.textContent()+"\n");
-            }
-            //page.locator("//button[@name='Edit']").click();
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit").setExact(true)).first().click();
-            page.waitForTimeout(3000);
-            Locator dialog=dialogAlohaFrameLocator;
-            dialog.locator(stageLocator).first().click();
-            dialog.selectFromDropDown(closedWonPendingStage).first().click();
-            dialog.locator(documentUploadCompletedLocator).click();
-            dialog.locator(documentUploadLocatorYes).click();
-            String futureDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern("M/d/yyyy"));
-            dialog.locator(contractExecutionDateLocator).fill(futureDate);
-            opportunities.assertErrorMessages(new String[]{"We hit a snag.", "Review the errors on this page.", "Opportunity must have a Primary Quote and it must be \"Accepted\" or \"Approved\""});
-            page.waitForTimeout(5000);
-            dialog.locator("//button[@name='CancelEdit']").first().click();
-            page.waitForTimeout(3000);
-            quotesLink.first().click();
-            page.waitForTimeout(3000);
-            Constant.quoteId=quoteDash.first().textContent();
-            quoteNumberLocator.click();
-            logger.info(Constant.quoteId + " quote page opened");
-            fw.write(Constant.quoteId + " quote page opened"+"\n");
-            page.waitForTimeout(3000);
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit").setExact(true)).first().click();
-            page.waitForTimeout(3000);
-            String startDate = LocalDate.now().format(DateTimeFormatter.ofPattern("M/d/yyyy"));
-            page.locator("//input[@name='SBQQ__StartDate__c']").fill(startDate);
-            page.waitForTimeout(3000);
-            dialog.locator(saveEditButton).first().click();
-            page.waitForTimeout(3000);
-            submitForApprovalSubmit.click();
-            page.waitForTimeout(3000);
-            submitForApprovalBox.fill("Test record "+ Constant.quoteId +" Submitting for approval");
-            page.waitForTimeout(3000);
-            
-            if(alertWarningButton.isVisible())
-            {
-                logger.info("Alert warning button visible");
-                fw.write("Alert warning button visible"+"\n");
-                alertWarningButton.click();
-            }
-            neutralButton.click();
-            page.waitForTimeout(3000);
-            String approvalStatus = statusLocator.first().textContent();
-            logger.info(approvalStatus);
-            fw.write(approvalStatus+"\n");
-            if(page.locator("//records-record-layout-item[@field-label='eFax Corp Subscription Discount Total']//lightning-formatted-text").first().isVisible())
-            {
-                String discountAmount = page.locator("//records-record-layout-item[@field-label='eFax Corp Subscription Discount Total']//lightning-formatted-text").first().textContent();
-                logger.info("Discount applied   "+ discountAmount);
-                fw.write("Discount applied   "+ discountAmount+"\n");
-            }
-
-
-            LoginPage loginPage1=new LoginPage(page);
-            loginPage1.loginToSalesForce(true,"sales","");
-            page.waitForTimeout(5000);
-            opportunities.switchToOpportunityDetailsScreen(opportunity);
-            logger.info("Opportunity screen opened for Save  ");
-            fw.write("Opportunity screen opened for Save  "+"\n");
-            page.waitForTimeout(3000);
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit").setExact(true)).first().click();
-            page.waitForTimeout(5000);
-            dialogAlohaFrameLocator.isVisible();
-            dialog.locator(stageLocator).first().click();
-
-            dialog.locator(documentUploadCompletedLocator).click();
-            dialog.locator(documentUploadLocatorYes).click();
-            *//*page.getByLabel("Contract Document Upload Completed? - Current Selection: No").click();
-            page.locator(documentUploadLocatorYes).click();*//*
-
-            dialog.locator(contractExecutionDateLocator).fill(futureDate);
-            dialog.locator(stageLocator).first().click();
-            dialog.selectFromDropDown(closedWonPendingStage).first().click();
-            dialog.locator(saveEditButton).first().click();
-            logger.info("Clicked Save on Opportunity with Successful save with Closed/Won Pending");
-            fw.write("Clicked Save on Opportunity with Successful save with Closed/Won Pending"+"\n");
-            page.waitForTimeout(3000);
-            String stage = opportunityStage.first().textContent();
-            logger.info(stage);
-            fw.write(stage+"\n");
-            String closeDate = opportunityCloseDate.first().textContent();
-            logger.info(closeDate);
-            fw.write(closeDate+"\n");
-            String forecastCategory = opportunityForecaseCategory.first().textContent();
-            logger.info(forecastCategory);
-            fw.write(forecastCategory+"\n");
-            String estProjectStartDate = opportunityEstStartDate.first().textContent();
-            logger.info(estProjectStartDate);
-            fw.write(estProjectStartDate+"\n");
-            String estProjectEndDate = opportunityEstEndDate.first().textContent();
-            logger.info(estProjectEndDate);
-            fw.write(estProjectEndDate+"\n");
-            LoginPage loginPage=new LoginPage(page);
-            loginPage.loginToSalesForce(true,"Michael","");
-            page.waitForTimeout(5000);
-            readAllNotificationsAndClose();
-            page.locator("//h3[@title='"+Constant.Opportunity+"']/a").first().click();
-            page.waitForTimeout(3000);
-            approveButtonLocator.first().click();
-            page.waitForTimeout(3000);
-            approvalTextBox.first().fill("Approving the Opportunity for testing");
-            neutralButton.first().click();
-            page.waitForTimeout(3000);
-            String checkApproval = approveButtonOne.nth(0).textContent();
-            logger.info(checkApproval);
-            fw.write(checkApproval+"\n");
-            String checkApproval2 = approveButtonOne.nth(1).textContent();
-            logger.info(checkApproval2);
-            fw.write(checkApproval2+"\n");
-            //Login as Sales user again
-            loginPage1.loginToSalesForce(true,"sales","");
-            logger.info("Login as Sales user again");
-            fw.write("Login as Sales user again"+"\n");
-            page.waitForTimeout(5000);
-            opportunities.switchToOpportunityDetailsScreen(opportunity);
-            quotesLink.first().click();
-            page.waitForTimeout(3000);
-            Constant.quoteId=quoteDash.first().textContent();
-            quoteNumberLocator.click();
-            logger.info(Constant.quoteId + " quote page opened");
-            fw.write(Constant.quoteId + " quote page opened"+"\n");
-            page.waitForTimeout(3000);
-            String quoteStatus = statusLocator.textContent();
-            logger.info(quoteStatus);
-            fw.write(quoteStatus+"\n");
-            boolean orderedCheckbox = orderedCheckBoxLocator.isChecked();
-            logger.info("Ordered Checkbox is checked :"+orderedCheckbox);
-            fw.write("Ordered Checkbox is checked :"+orderedCheckbox+"\n");
-
-            ordersLink.first().click();
-            page.waitForTimeout(3000);
-            *//*String orderNumber = orderNumberLocator.textContent();
-            logger.info("Order number " + orderNumber);*//*
-            orderNumberLocator.click();
-            page.waitForTimeout(3000);
-            String orderName = orderNameLocator.textContent();
-            logger.info("Order Name :" + orderName);
-            fw.write("Order Name :" + orderName+"\n");
-            String orderType = orderTypeLocator.textContent();
-            logger.info("Order Type :" + orderType);
-            fw.write("Order Type :" + orderType+"\n");
-            String orderAmount = orderAmountLocator.textContent();
-            logger.info("Order Amount :"+ orderAmount);
-            fw.write("Order Amount :"+ orderAmount+"\n");
-            String quoteOrderStatus = submittedForFinanceReview.first().textContent();
-            logger.info("Order Status :"+ quoteOrderStatus);
-            fw.write("Order Status :"+ quoteOrderStatus+"\n");
-            String orderStartDate = orderStartDateLocator.textContent();
-            logger.info("Order Start Date :"+ orderStartDate);
-            fw.write("Order Start Date :"+ orderStartDate+"\n");
-            String orderBillingFrequency = billingFrequency.first().textContent();
-            logger.info("Billing Frequency :"+ orderBillingFrequency);
-            fw.write("Billing Frequency :"+ orderBillingFrequency+"\n");
-            page.locator("//article[@aria-label='Order Products']//a").first().click();
-            page.waitForTimeout(3000);
-            String lastElement ="";
-
-            int productCount = productCodes.count();
-            String[] products={"AAC","AABL","AACLK","AACS","AATSR","KNTR","AA_PM","AAC_IMP","RPT_SRV","MGSR-M","CPS","CONPS_IMP","CPXINT","SMPINT","KNTR","COND_PM","PM","SST","SSTPBK","SSTLK","SCHLK","SAT","SSTTR","SST_IMP","AA_MAINT","SSTMAINT"};
-            String[] products2= new String[26];
-            int lastElementCount=0;
-            for(int i=0;i<productCount;i++){
-                if(allUpperCase(productCodes.nth(i).textContent()))
-                {
-                    logger.info(productCodes.nth(i).textContent());
-                    fw.write(i+" "+productCodes.nth(i).textContent()+"\n");
-                    products2[i]=productCodes.nth(i).textContent();
-                    if(i==productCount-1){
-                        lastElement = productCodes.nth(i).textContent();
-                        logger.info("lastElement =" + lastElement);
-                        lastElementCount=i;
-                    }
-                }
-            }
-            productCodeButtonLocator.click();
-            page.waitForTimeout(3000);
-
-            for(int i=0;i<productCodes2.count();i++){
-                if(allUpperCase(productCodes2.nth(i).textContent()))
-                {
-                    if(productCodes2.nth(i).textContent().equalsIgnoreCase(lastElement))
-                    {
-                        break;
-                    }
-                    int no = 16+i;
-                    logger.info(productCodes2.nth(i).textContent());
-                    fw.write(no+" "+productCodes2.nth(i).textContent()+"\n");
-                    products2[lastElementCount+i+1]=productCodes2.nth(i).textContent();
-                }
-            }
-            for(int i=0;i<products2.length;i++)
-            {
-                logger.info("products2 "+i+" "+products2[i]);
-            }
-            Arrays.sort(products);
-            Arrays.sort(products2);
-            for(int i=0;i<products.length;i++)
-            {
-                if(products[i].equalsIgnoreCase(products2[i])){
-                  logger.info("Match "+i+" "+products[i]);
-                  fw.write(products[i]+" in Quote :"+Constant.quoteId+"matches with "+products2[i]+" in Order :"+orderName+"\n");
-                  }
-                else{
-                    logger.info(products[i]+" did not match");
-                }
-            }
-            fw.close();
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-            logger.info("Exception occured while creating order from Quote");
-        }
-        return Constant.quoteId;
-    }
-    public String createOrderUnderQuote3(String opportunity, String timeStamp2,String recordFileLocation){
-        String urlCurrent="";
-        try{
-            FileWriter fw =new FileWriter(recordFileLocation);
-            urlCurrent = page.url();
-            logger.info(urlCurrent);
-            //Open the opportunity
-            opportunities = new OpportunitiesPage(page);
-            opportunities.switchToOpportunityDetailsScreen(opportunity);
-            logger.info("Opportunity screen opened");
-            fw.write("Opportunity screen opened"+"\n");
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit").setExact(true)).first().click();
-            page.waitForTimeout(3000);
-            Locator dialog=dialogAlohaFrameLocator;
-            dialog.locator(documentUploadCompletedLocator).click();
-            dialog.locator(documentUploadLocatorYes).click();
-            dialog.locator(stageLocator).first().click();
-            dialog.selectFromDropDown(closedWonPendingStage).first().click();
-            String futureDate = LocalDate.now().plusDays(30).format(DateTimeFormatter.ofPattern("M/d/yyyy"));
-            dialog.locator(contractExecutionDateLocator).fill(futureDate);
-            page.waitForTimeout(3000);
-            dialog.locator(saveEditButton).first().click();
-            logger.info("Clicked Save on Opportunity with Successful save with Closed/Won Pending");
-            fw.write("Clicked Save on Opportunity with Successful save with Closed/Won Pending"+"\n");
-            page.waitForTimeout(3000);
-            String stage = opportunityStage.first().textContent();
-            logger.info(stage);
-            fw.write(stage+"\n");
-            String closeDate = opportunityCloseDate.first().textContent();
-            logger.info(closeDate);
-            fw.write(closeDate+"\n");
-            String estProjectStartDate = opportunityEstStartDate.first().textContent();
-            logger.info(estProjectStartDate);
-            fw.write(estProjectStartDate+"\n");
-            String estProjectEndDate = opportunityEstEndDate.first().textContent();
-            logger.info(estProjectEndDate);
-            fw.write(estProjectEndDate+"\n");
-            LoginPage loginPage=new LoginPage(page);
-            loginPage.loginToSalesForce(true,"Michael","");
-            page.waitForTimeout(5000);
-            //Check notifications
-            readAllNotificationsAndClose();
-            page.locator("//h3[@title='"+opportunity+"']/a").first().click();
-            page.waitForTimeout(5000);
-            approveButtonLocator.first().click();
-            page.waitForTimeout(3000);
-            approvalTextBox.first().fill("Approving the Opportunity for testing");
-            neutralButton.first().click();
-            page.waitForTimeout(3000);
-            String checkApproval = approveButtonOne.nth(0).textContent();
-            logger.info(checkApproval);
-            fw.write(checkApproval+"\n");
-            String checkApproval2 = approveButtonOne.nth(1).textContent();
-            logger.info(checkApproval2);
-            fw.write(checkApproval2+"\n");
-            //Login as Sales user again
-            loginPage.loginToSalesForce(true,"sales","");
-            logger.info("Login as Sales user again");
-            fw.write("Login as Sales user again"+"\n");
-            page.waitForTimeout(5000);
-            opportunities.switchToOpportunityDetailsScreen(opportunity);
-            page.waitForTimeout(5000);
-            quotesLink.first().click();
-            page.waitForTimeout(3000);
-            Constant.quoteId=quoteDash.first().textContent();
-            quoteNumberLocator.click();
-            logger.info(Constant.quoteId + " quote page opened");
-            fw.write(Constant.quoteId + " quote page opened"+"\n");
-            page.waitForTimeout(3000);
-            String quoteStatus = statusLocator.textContent();
-            logger.info(quoteStatus);
-            fw.write(quoteStatus+"\n");
-            boolean orderedCheckbox = orderedCheckBoxLocator.isChecked();
-            logger.info("Ordered Checkbox is checked :"+orderedCheckbox);
-            fw.write("Ordered Checkbox is checked :"+orderedCheckbox+"\n");
-
-            ordersLink.first().click();
-            page.waitForTimeout(3000);
-            String orderNumber = orderNumberLocator.textContent();
-            logger.info("Order number " + orderNumber);
-            orderNumberLocator.click();
-            page.waitForTimeout(3000);
-            String orderName = orderNameLocator.textContent();
-            logger.info("Order Name :" + orderName);
-            fw.write("Order Name :" + orderName+"\n");
-            String orderType = orderTypeLocator.textContent();
-            logger.info("Order Type :" + orderType);
-            fw.write("Order Type :" + orderType+"\n");
-            String orderAmount = orderAmountLocator.textContent();
-            logger.info("Order Amount :"+ orderAmount);
-            fw.write("Order Amount :"+ orderAmount+"\n");
-            String quoteOrderStatus = submittedForFinanceReview.first().textContent();
-            logger.info("Order Status :"+ quoteOrderStatus);
-            fw.write("Order Status :"+ quoteOrderStatus+"\n");
-            String orderStartDate = orderStartDateLocator.textContent();
-            logger.info("Order Start Date :"+ orderStartDate);
-            fw.write("Order Start Date :"+ orderStartDate+"\n");
-            String orderBillingFrequency = billingFrequency.first().textContent();
-            logger.info("Billing Frequency :"+ orderBillingFrequency);
-            fw.write("Billing Frequency :"+ orderBillingFrequency+"\n");
-            page.waitForTimeout(3000);
-            fw.close();
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-            logger.info("Exception occured while creating order from Quote");
-        }
-        return Constant.quoteId;
-    }*/
-    public void readAllNotificationsAndClose(){
-        page.locator("//button[@class='slds-button slds-button slds-button_icon slds-button_icon slds-button_icon-container slds-button_icon-small slds-global-actions__notifications slds-global-actions__item-action']").click();
-        page.waitForTimeout(10000);
-        Locator notifications = page.locator("//span[@class='notification-text uiOutputText']");
-        for(int i=0;i<2;i++)
-        {
-            logger.info(notifications.nth(i).textContent());
-        }
-        page.locator("//button[@title='Close Notifications']").click();
-    }
     static boolean allUpperCase(String input) {
         return input.equals(input.toUpperCase());
     }

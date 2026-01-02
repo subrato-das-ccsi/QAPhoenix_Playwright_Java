@@ -48,100 +48,7 @@ public class NavigationBarPage extends BasePage {
 		page.waitForLoadState();
 	}
 
-	public AccountsPage switchToAccountsTab() {
-		try {
-			tabAccounts.first().click();
-			return new AccountsPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new AccountsPage(page);
-	}
 
-	public AccountsPage switchToAccountDetailsScreen(String accountname) {
-		try {
-			tabAccounts.first().click();
-			waitForLoader();
-			if (page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("List View").setExact(true)).isVisible()) {
-				page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("List View").setExact(true)).click();
-			}
-			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Select a List View: Accounts")).click();
-			page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName("All Accounts")).first().click();
-			searchList(accountname,accountname);
-
-		} catch (Exception e) {
-			logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new AccountsPage(page);
-	}
-
-	public ContactsPage switchToContactsTab() {
-
-		try {
-			tabContacts.first().click();
-			page.waitForLoadState();
-			return new ContactsPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new ContactsPage(page);
-	}
-
-	public ContactsPage switchToContactsDetailsScreen(String contactName) {
-		try {
-			tabContacts.first().click();
-			searchList(contactName,contactName);
-			return new ContactsPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new ContactsPage(page);
-	}
-
-	public ContactsPage switchToQuoteDetailsScreen(String quote) {
-		try {
-			tabQuotes.first().click();
-			searchList(quote,quote);
-
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new ContactsPage(page);
-	}
-
-	public OrderPage switchToOrderDetailsScreen(String orderId) {
-		try {
-			tabAccounts.first().click();
-			searchList(orderId,orderId);
-			return new OrderPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new OrderPage(page);
-	}
-
-	public ContactsPage switchToContactCreation(){
-		try {
-			switchToAccountsTab().openAccountTypeWindow();
-			return new ContactsPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new ContactsPage(page);
-	}
-
-	public ContactsPage openContactCreationPage(){
-		try {
-			switchToAccountsTab();
-			waitForLoader();
-			page.waitForSelector("a[data-refId='recordId']").click();
-			logger.info("Opening first Account from Accounts Page to create Contact");
-
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new ContactsPage(page);
-	}
 
 	public void switchToLeadsTab() {
 		try {
@@ -152,84 +59,7 @@ public class NavigationBarPage extends BasePage {
 		}
 	}
 
-	public OpportunitiesPage switchToOpportunitiesTab() {
-		try {
-			tabOpportunities.first().click();
-			page.waitForLoadState();
-			return new OpportunitiesPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new OpportunitiesPage(page);
-	}
 
-	public OpportunitiesPage switchToOpportunityDetailsScreenSearch() {
-		try {
-			tabOpportunities.first().click();
-			waitForLoader();
-			if (page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("List View").setExact(true)).isVisible()) {
-				page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("List View").setExact(true)).click();
-			}
-			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Select a List View: Opportunities")).click();
-			page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName("All Opportunities")).click();
-		} catch (Exception e) {
-			logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new OpportunitiesPage(page);
-	}
-	public void editQuoteStatusFromAccepted(String status){
-		try {
-			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Edit Status").setExact(true)).click();
-			waitForLoader();
-			page.getByText("*Status").click();
-			page.getByText(status, new Page.GetByTextOptions().setExact(true)).first().click();
-			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Save")).click();
-			waitForLoader();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public OpportunitiesPage switchToOpportunityDetailsScreen(String opportunityName) {
-		try {
-			globalSearch(opportunityName);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new OpportunitiesPage(page);
-	}
-
-	public OpportunitiesPage switchToOpportunitiesTab(String opportunityname) {
-		try {
-			page.reload().finished();
-			waitForLoader();
-			page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Opportunities List")).click();
-			page.waitForLoadState();
-			page.waitForTimeout(3000);
-			if (!opportunityname.isEmpty()) {
-				try {
-					page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName(opportunityname)).first().click();
-				} catch (PlaywrightException e) {
-					logger.info("Recent opportunities list not opened " + e);
-				}
-			}
-			page.waitForLoadState();
-			return new OpportunitiesPage(page);
-		} catch (Exception e) {
-			 logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new OpportunitiesPage(page);
-	}
-
-	public QuotesPage switchToQuotesTab() {
-		try {
-				tabQuotes.first().click();
-				page.waitForLoadState();
-		} catch (Exception e) {
-			logger.info("Error while executing "+Thread.currentThread().getStackTrace()[1].getMethodName()+" method in "+Thread.currentThread().getStackTrace()[1].getClassName()+" class "+e);
-		}
-		return new QuotesPage(page);
-	}
 
 	public SetUpPage switchToSetup() {
 		try {
@@ -350,14 +180,6 @@ public class NavigationBarPage extends BasePage {
 
 	}
 
-	public void selectfromOpportunityListViews(String searchContent){
-		switchToOpportunitiesTab();
-		page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Select a List View: Opportunities")).click();
-		page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName(searchContent)).first().click();
-	}
-
-
-
 	public  void searchList(String searchContent,String clickLink){
 		try {
 			//page.reload().finished();
@@ -408,7 +230,7 @@ public class NavigationBarPage extends BasePage {
 			logger.info("Unable to open record No recently viewed records availale for the user");
 		}
 	}
-public  void openFirstlink() {
+	public  void openFirstlink() {
 	try {
 		page.waitForTimeout(1000);
 		page.locator("//th//span//a").first().click();
@@ -429,58 +251,6 @@ public  void openFirstlink() {
 
 
 	//used to open first link from objects list views like opportunity,Contacts,Account lists etc
-	public void openAnyObject(String objectName){
-		try {
-			if (objectName.toLowerCase().contains("opportunities")){
-				switchToOpportunitiesTab();
-				openFirstlink();
-			}
-			if (objectName.toLowerCase().contains("accounts")){
-				switchToAccountsTab();
-				openFirstlink();
-			}
-			if (objectName.toLowerCase().contains("leads")){
-				switchToLeadsTab();
-				openFirstlink();
-			}
-			if (objectName.toLowerCase().contains("contacts")){
-				switchToContactsTab();
-				openFirstlink();
-			}
-			if (objectName.toLowerCase().contains("contracts")){
-				switchToContractsTab();
-				openFirstlink();
-			}
-		} catch (Exception e) {
-			logger.info("Unable to open "+objectName+" list views trying to open with Applauncher");
-			//navigateToMenu(menuOptions.Opportunities);
-			try {
-				if (objectName.toLowerCase().contains("opportunities")){
-					navigateToMenu(menuOptions.Opportunities);
-					openFirstlink();
-				}
-				if (objectName.toLowerCase().contains("accounts")){
-					navigateToMenu(menuOptions.Accounts);
-					openFirstlink();
-				}
-				if (objectName.toLowerCase().contains("leads")){
-					navigateToMenu(menuOptions.Leads);
-					openFirstlink();
-				}
-				if (objectName.toLowerCase().contains("contacts")){
-					navigateToMenu(menuOptions.Contacts);
-					openFirstlink();
-				}
-				if (objectName.toLowerCase().contains("contracts")){
-					navigateToMenu(menuOptions.Contracts);
-					page.locator("a[data-refid='recordId']").first().click();
-				}
-			} catch (Exception ex) {
-				logger.info("Unable to open "+objectName+" list views from Applauncher");
-			}
-		}
-
-	}
 	public String profileName(){
 		String cardName= "";
 		waitForLoader();
