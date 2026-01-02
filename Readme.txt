@@ -37,7 +37,7 @@ docker cp 8bd60a7960d4:/tmp/pw-java/target/surefire-reports ./target/docker/sure
 https://confluence.j2.com/confluence/display/FAXOPS/Ivalice+-+User%27s+Guide+-+Java+Edition
 
 ivalice generator init
-Artifactory API Key = AKCp8mYofNBHGbvgj38sJJxCCgYcJCCSeHBSNE2cRTm9nzM3d1bj6z15m5FtnHavfaUAoX5CV
+#Artifactory API Key = AKCp8mYofNBHGbvgj38sJJxCCgYcJCCSeHBSNE2cRTm9nzM3d1bj6z15m5FtnHavfaUAoX5CV
 ivalice jenkins create-jobs -u jagadeesh.medabalimi -p 11ff9f8e11101447e70da38773440ad3d2
 
 
