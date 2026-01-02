@@ -7,7 +7,7 @@ https://www.w3.org/2001/XMLSchema-instance "
         <server>
             <!-- https://artifactory.ops.ccs.biz/ui/admin/artifactory/user_profile -->
             <username>subrato.das@consensus.com</username>
-
+            <password>xxx</password>
             <id>central</id>
             <configuration>
                 <httpConfiguration>
@@ -19,7 +19,7 @@ https://www.w3.org/2001/XMLSchema-instance "
         </server>
         <server>
             <username>subrato.das@consensus.com</username>
-
+            <password>xxx</password>
             <id>central-mirror</id>
             <configuration>
                 <httpConfiguration>
