@@ -16,7 +16,7 @@ public class LogoutTest extends BaseFactory {
         LoginPage loginPage=new LoginPage(page);
         loginPage.loginToSalesForce(true,"sales","");
         //loginPage.loginToSalesForce(true,"Brett","");
-        return new HomePage(page);
+        return new  HomePage(page);
     }
     public String uploadToGDrive(HomePage homePage) {
         try{
