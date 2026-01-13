@@ -51,10 +51,6 @@ dist/
 nbdist/
 excluded/
 nbactions.xml
-credentials.qa
-credentials.dev
-credentials.prod
-credentials.onelogin
 nb-configuration.xml
 debug.log
 *.json

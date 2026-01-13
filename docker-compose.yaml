@@ -1,28 +1,54 @@
-version: "3"
-
+# Remove 'version: 3.8' to fix the obsolete warning
 services:
-   playwright:
-      image: mcr.microsoft.com/playwright/java:focal
-      container_name: container.secure.efax.com
-      working_dir: /tmp/pw-java
-      volumes:
-         - .:/tmp/pw-java
-      command: sh -c "mvn clean compile test -ntp -e -P qa -D uploadResults=false -D skipTests=false -D testRunId=11111 -D webbrowser=chrome -D headless=true -D suiteXmlFiles=secure.fax.debug.xml -D oracle.jdbc.timezoneAsRegion=false"
-      extra_hosts:
-         - "qa.efax.es:10.160.90.62"
-         - "qa.efax.de:10.160.90.61"
-         - "qa.efax.fr:10.160.90.60"
-         - "qa.efax.nl:10.160.90.63"
-         - "qa.it.efax.com:10.160.90.69"
-         - "qa.efax.co.jp:10.160.90.70"
-         - "qa.efax.com.au:10.160.90.58"
-         - "qa.efax.ca:10.160.90.84"
-         - "qa.mbox.com.au:10.160.90.73"
-         - "qa.jfax.com:10.160.90.100"
-         - "qa.myaccount.myhealthinbox.com:10.160.90.192"
-         - "qa.efaxcorporate.com:10.160.90.170"
-         - "qa.central.myfax.com:10.160.90.79"
-         - "qawww.efax.com:10.160.90.149"
-         - "qamyaccount.metrofax.com:10.160.90.55"
-         - "qamyaccount.jconnect.com:10.160.90.68"
-         - "qa.efax.co.uk:10.160.90.57"
+  browser-host:
+    build:
+      context: .
+      dockerfile: Dockerfile.browser
+    container_name: browser-host
+    networks:
+      - automation-net
+    expose:
+      - "4444"
+    ports:
+      - "4444:4444"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:4444/status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test-runner:
+    # FIX 1: Add 'build' so it builds your Dockerfile instead of trying to pull it
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: java-code:1.0.0
+    container_name: test-runner
+    depends_on:
+      browser-host:
+        condition: service_healthy
+    networks:
+      - automation-net
+    volumes:
+      - ./target/allure-results:/app/target/allure-results
+      - ./credentials.qa:/app/credentials.qa
+      - ./credentials.onelogin:/app/credentials.onelogin
+    environment:
+      - PLAYWRIGHT_ENDPOINT=ws://browser-host:4444/ws
+      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+    # FIX 2: Removed "java -cp ..." because ENTRYPOINT in Dockerfile already does it.
+    # Only provide the ARGUMENTS here.
+    command: >
+      -Denv=qa
+      -Dwebbrowser=chromium
+      -Dheadless=true
+      -Dallure.results.directory=target/allure-results
+      com.consensus.qaauto.TestRunner
+      -environment qa
+      -webBrowser chromium
+      -headless true
+
+networks:
+  automation-net:
+    driver: bridge

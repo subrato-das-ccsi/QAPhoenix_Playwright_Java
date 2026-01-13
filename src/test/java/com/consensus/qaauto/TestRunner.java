@@ -40,7 +40,7 @@ public class TestRunner extends Utilities {
             String testRunId = cmd.getOptionValue("testRunId", "R00000");
             String suiteXmlFile = cmd.getOptionValue("suiteXmlFile", "end2end.xml");
             String webBrowser = cmd.getOptionValue("webBrowser", "chromium");
-            String headless = cmd.getOptionValue("headless", "false");
+            String headless = cmd.getOptionValue("headless", "true");
             String timeout = cmd.getOptionValue("timeout", "120000");
             String secretServerUrl = cmd.getOptionValue("secretServerUrl", "https://secretserver.j2noc.com/SecretServer");
             String secretserverSecrets = cmd.getOptionValue("secretserverSecrets", "4479;3254;14944");

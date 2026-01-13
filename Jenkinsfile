@@ -120,10 +120,10 @@ pipeline {
 						writeFile file: "credentials.${ExecEnvironment}", text: "$creds"
 
 						if (isUnix()) {
-							sh "mvn -U -s settings.xml -q clean compile test -P ${ExecEnvironment} -DuploadResults=${uploadResults} -DskipTests=false -D headless=false -D webBrowser=${Browser} -D testGroups=${testGroups} -D testRunId=${TestRunId} -D trace=${setTrace} -D enableVideoRecording=${enableVideoRecording} -D recordFailedOnly=${recordFailedOnly} -D suiteXmlFile=${ModuleName}"
+							sh "mvn -U -s settings.xml -q clean compile test -P ${ExecEnvironment} -DuploadResults=${uploadResults} -DskipTests=false -D headless=true -D webBrowser=${Browser} -D testGroups=${testGroups} -D testRunId=${TestRunId} -D trace=${setTrace} -D enableVideoRecording=${enableVideoRecording} -D recordFailedOnly=${recordFailedOnly} -D suiteXmlFile=${ModuleName}"
 						}
 						else {
-							bat 'mvn -U -s settings.xml -q clean compile test -P %ExecEnvironment% -D uploadResults=%uploadResults% -D skipTests=false -D headless=false -D webBrowser=%Browser% -D testGroups=%testGroups% -D testRunId=%TestRunId% -D trace=${setTrace} -D enableVideoRecording=%enableVideoRecording% -D recordFailedOnly=%recordFailedOnly% -D suiteXmlFile=%ModuleName%'
+							bat 'mvn -U -s settings.xml -q clean compile test -P %ExecEnvironment% -D uploadResults=%uploadResults% -D skipTests=false -D headless=true -D webBrowser=%Browser% -D testGroups=%testGroups% -D testRunId=%TestRunId% -D trace=${setTrace} -D enableVideoRecording=%enableVideoRecording% -D recordFailedOnly=%recordFailedOnly% -D suiteXmlFile=%ModuleName%'
 						}
 					}
 				}

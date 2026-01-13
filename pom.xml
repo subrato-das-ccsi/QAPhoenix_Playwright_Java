@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
     <groupId>com.consensus.qaauto</groupId>
-    <artifactId>PhoenixPLaywrightJava</artifactId>
+    <artifactId>PhoenixPlaywrightJava</artifactId>
     <version>1.0.0</version>
     <properties>
         <target.dir>target</target.dir>
@@ -22,10 +22,11 @@
         <testrailBaseUrl>https://10.2.2.81</testrailBaseUrl>
         <uploadResults>false</uploadResults>
         <testRunId>R00000</testRunId>
-        <suiteXmlFile>PhoenixTests.xml</suiteXmlFile>
-        <webBrowser>chrome</webBrowser>
+        <!--suppress UnresolvedMavenProperty -->
+        <suiteXmlFile>${xmlTestFile}</suiteXmlFile>
+        <webBrowser>chromium</webBrowser>
         <product>phoenix</product>
-        <headless>false</headless>
+        <headless>true</headless>
         <trace>true</trace>
         <secretServerUrl>https://secretserver.j2noc.com/secretserver</secretServerUrl>
         <secretserverSecrets>4479;3254;14944</secretserverSecrets>
@@ -202,7 +203,7 @@
         <dependency>
             <groupId>com.microsoft.playwright</groupId>
             <artifactId>playwright</artifactId>
-            <version>1.51.0</version>
+            <version>1.49.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>
@@ -376,6 +377,31 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                    <includeScope>test</includeScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                            <includeScope>test</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
@@ -419,6 +445,35 @@
                         </suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/libs</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>

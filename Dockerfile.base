@@ -1,0 +1,12 @@
+# Dockerfile.base
+FROM mcr.microsoft.com/playwright/java:v1.49.0-noble
+
+WORKDIR /app
+
+# Copy only the dependency libs (the heavy part)
+COPY target/libs/ ./libs/
+
+# Install Chromium and system dependencies once
+RUN java -cp "libs/*" com.microsoft.playwright.CLI install --with-deps chromium
+
+# This image is now a "ready-to-go" Playwright environment
