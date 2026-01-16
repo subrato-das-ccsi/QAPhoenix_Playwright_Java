@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  test-runner:
+    ports:
+      - "5005:5005"  # Opens the debug port only when this file is used
+    environment:
+      # This effectively injects the debugger into your running jar
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

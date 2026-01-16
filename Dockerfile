@@ -1,16 +1,25 @@
-FROM eclipse-temurin:17-jre
+FROM mcr.microsoft.com/playwright/java:v1.51.0-jammy
 
 WORKDIR /app
 
-COPY target/PhoenixPlaywrightJava-1.0.0.jar app.jar
+#COPY target/libs /app/libs
+COPY target/PhoenixPlaywrightJava-1.0.0-fat-tests.jar app.jar
 COPY target/PhoenixPlaywrightJava-1.0.0-tests.jar app-tests.jar
+COPY credentials.qa .
 
-ENTRYPOINT ["java", "-cp", "app-tests.jar:app.jar:libs/*"]
+#EXPOSE 5005
 
-CMD ["-Dwebbrowser=chromium", \
+# 1. Change ENTRYPOINT to just "java"
+ENTRYPOINT ["java"]
+
+# 2. Put ALL arguments (including -jar) in CMD
+#    Notice that "-jar app.jar" is now at the END of the list.
+CMD ["-DcliBrowser=firefox", \
+     "-DwebBrowser=firefox", \
      "-Dsonar.skip=true", \
-     "-Denv=qa", \
+     "-Denvironment=qa", \
      "-Dheadless=true", \
      "-Dallure.results.directory=target/allure-results", \
      "-DxmlTestFile=PhoenixTests.xml", \
-     "com.consensus.qaauto.TestRunner"]
+     "-jar", "app.jar"]
+

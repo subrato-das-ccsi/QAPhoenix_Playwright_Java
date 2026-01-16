@@ -56,7 +56,7 @@ debug.log
 *.json
 *.png
 *.html
-src/test/java/SalesforceInspector
+src/main/java/SalesforceInspector
 test-output/report/Files/*.txt
 .DS_Store
 myData

@@ -14,8 +14,8 @@
     <version>1.0.0</version>
     <properties>
         <target.dir>target</target.dir>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target><timeout>120000</timeout>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target><timeout>120000</timeout>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>false</skipTests>
         <testGroups></testGroups>
@@ -24,7 +24,7 @@
         <testRunId>R00000</testRunId>
         <!--suppress UnresolvedMavenProperty -->
         <suiteXmlFile>${xmlTestFile}</suiteXmlFile>
-        <webBrowser>chromium</webBrowser>
+        <webBrowser>firefox</webBrowser>
         <product>phoenix</product>
         <headless>true</headless>
         <trace>true</trace>
@@ -65,7 +65,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -203,7 +202,7 @@
         <dependency>
             <groupId>com.microsoft.playwright</groupId>
             <artifactId>playwright</artifactId>
-            <version>1.49.0</version>
+            <version>1.51.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.javafaker</groupId>
@@ -219,7 +218,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.21.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -245,7 +243,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <profiles>
@@ -350,7 +347,7 @@
                 <version>3.3.0</version>
                 <configuration>
                     <descriptors>
-                        <descriptor>src/test/resources/assembly.xml</descriptor>
+                        <descriptor>src/main/resources/assembly.xml</descriptor>
                     </descriptors>
                     <archive>
                         <manifest>
@@ -436,12 +433,11 @@
                         <allure.results.directory>${allure.results.directory}</allure.results.directory>
                     </systemPropertyVariables>
                     <reportsDirectory>${project.basedir}/test-output/report</reportsDirectory>
-                    <!--					<reuseForks>true</reuseForks>-->
                     <groups>${testGroups}</groups>
                     <forkCount>3</forkCount>
                     <reuseForks>false</reuseForks>
                     <suiteXmlFiles>
-                        <suiteXmlFile>src/test/java/com/consensus/qaauto/phoenix/TestNGXml/${suiteXmlFile}
+                        <suiteXmlFile>src/main/java/com/consensus/qaauto/phoenix/TestNGXml/PhoenixTests.xml
                         </suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
@@ -471,19 +467,6 @@
                     <execution>
                         <goals>
                             <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonarsource.scanner.maven</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.7.0.1746</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sonar</goal>
                         </goals>
                     </execution>
                 </executions>

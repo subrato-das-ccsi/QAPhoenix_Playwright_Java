@@ -29,10 +29,6 @@ services:
         condition: service_healthy
     networks:
       - automation-net
-
-    # ADDED: Map the debug port so your IDE can connect
-    #ports:- "5005:5005"
-
     volumes:
       - ./target/allure-results:/app/target/allure-results
       - ./credentials.qa:/app/credentials.qa
@@ -43,15 +39,15 @@ services:
 
     # FIX 2: Removed "java -cp ..." because ENTRYPOINT in Dockerfile already does it.
     # Only provide the ARGUMENTS here.
-    #command: >
-    #  -Denv=qa
-    #  -Dwebbrowser=chromium
-    #  -Dheadless=true
-    # -Dallure.results.directory=target/allure-results
-    #  com.consensus.qaauto.TestRunner
-    #  -environment qa
-    # -webBrowser chromium
-    #  -headless true
+    command: >
+      -Denv=qa
+      -Dwebbrowser=chromium
+      -Dheadless=true
+      -Dallure.results.directory=target/allure-results
+      com.consensus.qaauto.TestRunner
+      -environment qa
+      -webBrowser chromium
+      -headless true
 
 networks:
   automation-net:

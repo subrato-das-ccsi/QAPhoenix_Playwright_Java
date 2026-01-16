@@ -1,12 +1,14 @@
 # Use the image you already downloaded
-FROM mcr.microsoft.com/playwright:v1.49.0-jammy
+FROM mcr.microsoft.com/playwright:v1.51.0-jammy
 
 WORKDIR /ms-playwright
 
 # 1. Initialize a dummy project
-# 2. Install the Playwright driver (Must match your Java version: 1.49.0)
+# 2. Install the Playwright driver (Must match your Java version: 1.51.0)
 RUN npm init -y && \
-    npm install playwright@1.49.0
+    npm install playwright@1.51.0
+
+RUN npx playwright install firefox
 
 # Start the server on port 4444
 CMD ["npx", "playwright", "run-server", "--port", "4444", "--path", "/ws"]

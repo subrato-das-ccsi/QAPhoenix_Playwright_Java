@@ -17,7 +17,6 @@ public abstract class BaseFactory extends BaseTest {
 
 @BeforeMethod(alwaysRun = true)
     public void startProjectSpecificLog(Method method) {
-        // 'method.getName()' gives you the @Test method name (e.g., "EndToEndValidations")
         AnalysisLogger.startTestLog(method.getName());
         logger.info("Analysis logger started...");
     }
